@@ -119,3 +119,115 @@ reasoning_effort=low, a streamed function call with reasoning_effort=high, a
 tool-result continuation, and reasoning-only chat without tools. All returned
 HTTP 200. One initial continuation probe returned an upstream HTTP 502; the
 subsequent probe with an explicit assistant content=null returned a text reply.
+
+## Oracle theme and co-branding — 27 October 2026
+
+The live deployment at `https://orac-ai.com` now uses the application name
+`Oracle - OpenWebUI`. The frontend fallback title and backend default match;
+names already containing `OpenWebUI` do not gain a duplicate attribution suffix.
+
+`static/static/custom.css` is the browser-ready adaptation of `style-ref.css`.
+It expands the reference's Tailwind directives and maps its dark background
+(`#0D1117`), card (`#1B1F2E`), border (`#30363D`), Inter font and Oracle red
+(`#C74634`) onto OpenWebUI. `static/static/loader.js` replaces the existing
+sidebar and sign-in logo with `static/static/oracle-openwebui.svg`, combining the
+supplied Oracle O, a pipe, and the original OpenWebUI Oi logo. There is no added
+top bar or reserved header space. Existing logo links and sidebar controls keep
+their behavior; the combined mark scales down in the collapsed sidebar.
+The loader defaults each browser to dark mode once; subsequent user theme choices
+remain available. The supplied image is saved unchanged as
+`static/static/oracle-o.png`; the combined SVG embeds the original raster assets.
+
+The deployed image is `oracle-openwebui:sidebar-branding-20261027`. It derives
+from `oracle-openwebui:branding-20261027` (`108c6c8c10d1`), which derives from the
+existing OCI schema-patched image and carries
+forward the live GPT-6 Luna router patch. No frontend bundle or application
+version upgrade was required: the application already loads the static
+`custom.css` and `loader.js` hooks. `branding.Dockerfile` records the overlay
+layout; its build context supplies the patched live `env.py`, `openai.py`,
+`index.html`, and the branding files under `assets/`. Normal full source builds use
+the updated source files directly.
+
+The server's `/opt/open-webui/start.sh` and private `webui.env` now reference the
+branded image and exact name. The original container is retained, stopped with
+restart disabled, as `open-webui-before-sidebar-branding-20261027`. The earlier original backup
+`open-webui-before-branding-20261027` also remains stopped. Private deployment
+and rollback files for the latest revision are in
+`/opt/openwebui-branding/sidebar-20261027/` (mode 0700),
+including the prior container inspection and startup/environment files. To roll
+back, stop the current container, rename it, rename the retained container to
+`open-webui`, restore its `unless-stopped` restart policy, and start it; also
+restore the saved startup/environment files. The persistent application data
+volume is shared by the successive containers and must only have one running
+application container at a time.
+
+Validation: public health, configuration, manifest and branding assets
+returned HTTP 200. The configuration and manifest report the exact requested
+name. Browser review of the initial revision verified the sign-in title and palette.
+The revised layout removes the top bar and places the combined mark in the
+existing logo position. The SSO
+button reached the existing OCI identity-domain sign-in page. A container restart
+preserved the theme assets and name; hashes confirmed both previous OCI source
+patches were retained. An authenticated chat UI and a new complete SSO login were
+not exercised during this appearance change.
+
+Latest revision verification: the deployed container is healthy, public branding
+assets match the local SHA-256 hashes, and the sign-in page shows the combined
+Oracle O | Oi mark at the original top-left logo position with no top bar or
+header offset. Authenticated sidebar selectors were checked against the source;
+an authenticated browser session was not available for visual review.
+
+Equal-size logo revision: both logo tiles occupy 32 × 32 SVG units. The Oi
+asset’s transparent outer padding is excluded by its SVG viewBox, so its visible
+tile matches the Oracle tile. Live static source and served files were updated
+without a restart. The recreation helper now uses the derived image
+`oracle-openwebui:equal-logos-20261027`; rollback files are in
+`/opt/openwebui-branding/equal-logos-20261027/`.
+
+Login heading revision: the sign-in card now displays the combined equal-size
+Oracle O | Oi logos instead of the visible “Sign in to Oracle - OpenWebUI”
+heading. The original text remains available to screen readers. The separate
+corner logo is hidden on this sign-in view, while the sidebar branding remains.
+The live static files and recreation image `oracle-openwebui:login-heading-20261027`
+include the change; rollback files are in
+`/opt/openwebui-branding/login-heading-20261027/`.
+
+Sidebar caption revision: `Oracle-OpenWebUI` is centered below the combined
+logos. It uses locally served Oracle Sans Regular at `calc(12px - 2pt)`
+(7pt / 9.333px), two points smaller than the previous 12px caption. The grid
+keeps the sidebar collapse control to the right. An isolated sidebar layout
+preview verified that the caption starts below the logos and that Oracle Sans
+is loaded; the authenticated live sidebar was not available for visual review.
+The public font, script and stylesheet returned HTTP 200 and matched local
+assets. The recreation image is `oracle-openwebui:sidebar-caption-20261027`, with
+rollback files in `/opt/openwebui-branding/sidebar-caption-20261027/`.
+
+Sidebar caption size update: the caption now uses Oracle Sans at 16px with a
+20px line height, retaining its position below the logos. The live static source
+and served CSS match the recreation image
+`oracle-openwebui:sidebar-caption16-20261027`; rollback files are under
+`/opt/openwebui-branding/sidebar-caption16-20261027/`.
+
+Chat welcome logo revision: the model icon above the empty-chat composer now
+uses the supplied Oracle O image. The static loader targets only the welcome
+area; the source component `Placeholder.svelte` also references the Oracle asset
+for future full frontend builds. The deployed static overlay and recreation
+image `oracle-openwebui:chat-oracle-logo-20261027` include the change. Rollback
+files are under `/opt/openwebui-branding/chat-oracle-logo-20261027/`. Public
+asset/health checks passed; an authenticated live chat UI was not available for
+visual review.
+
+Assistant avatar revision: icons beside assistant responses now use the Oracle O
+asset. The runtime hook targets `img.assistant-message-profile-image`, and the
+source `ResponseMessage.svelte` uses the same Oracle image for future builds.
+The live overlay and recreation image
+`oracle-openwebui:assistant-oracle-logo-20261027` include this change; rollback
+files are in `/opt/openwebui-branding/assistant-oracle-logo-20261027/`. Public
+script, Oracle image and health checks passed. No authenticated live browser
+review was performed for this revision.
+
+## Full remote code synchronization — 27 October 2026
+
+The running application code, compiled frontend and host-side deployment code
+have been pulled into this checkout and verified by checksum. See
+[REMOTE_SYNC.md](REMOTE_SYNC.md) for destinations, counts and backup locations.
