@@ -44,6 +44,7 @@ from open_webui.utils.headers import get_headers_and_cookies, include_user_info_
 from open_webui.utils.json_codec import JSONCodec
 from open_webui.utils.misc import convert_logit_bias_input_to_json
 from open_webui.utils.model_ids import strip_provider_model_prefix
+from open_webui.utils.oci import normalize_gemini_tool_results
 from open_webui.utils.payload import (
     apply_model_params_to_body_openai,
     apply_system_prompt_to_body,
@@ -1575,6 +1576,8 @@ async def generate_chat_completion(
                 message['content'] = ''.join(
                     part.get('text', '') for part in message['content'] if part.get('type') in ('input_text', 'text')
                 )
+
+    payload = normalize_gemini_tool_results(payload, url, is_responses=is_responses)
 
     is_streaming_request = bool(payload.get('stream', False))
     if not is_streaming_request:

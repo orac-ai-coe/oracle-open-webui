@@ -231,3 +231,37 @@ review was performed for this revision.
 The running application code, compiled frontend and host-side deployment code
 have been pulled into this checkout and verified by checksum. See
 [REMOTE_SYNC.md](REMOTE_SYNC.md) for destinations, counts and backup locations.
+
+## Gemini tool-result compatibility — 27 October 2026
+
+OCI's Gemini conversion rejects a tool-message string containing a top-level JSON
+array because Gemini's `functionResponse.response` must be an object. A direct
+OCI request reproduced the reported HTTP 400; wrapping the same result in
+`{"result": [...]}` returned HTTP 200.
+
+`backend/open_webui/utils/oci.py` now wraps JSON arrays and scalars in a `result`
+object for OCI Gemini Chat Completions requests. The router applies this after
+multimodal tool content is flattened, across all tool turns in the outgoing
+history. Object results and plain text retain their content. Other providers,
+models and Responses connections retain their existing behavior. The request
+normalizer does not change stored chat history.
+
+The live router and helper were updated and the container restarted. The host
+startup helper now references `oracle-openwebui:gemini-tool-results-20261027`,
+built from the existing `assistant-oracle-logo-20261027` recreation image with
+`gemini-tool-results.Dockerfile`. The original router and startup helper are in
+`/opt/openwebui-patches/gemini-tool-results-20261027/` as `openai.py.before` and
+`start.sh.before`. To roll back the running patch, restore the original router
+inside the container and restart it; restore the saved startup helper as well.
+
+Validation: five regression tests passed in both the running container and the
+new recreation image. Public application health returned HTTP 200. Direct OCI
+checks using the deployed normalizer and two array-returning tool turns returned
+HTTP 200 and text for Flash, Flash Lite and Pro in both streaming modes, without
+the reported payload error. Flash and Pro returned the expected combined total.
+Flash Lite returned an incorrect total; a clearer follow-up also failed the
+answer assertion (empty or incorrect output). Its answer quality remains
+unverified despite successful payload acceptance. An authenticated OpenWebUI
+endpoint smoke test could not be completed: automatic approval review rejected
+constructing a user session token from authentication data. No authentication
+settings or account session stamps were changed.
