@@ -34,3 +34,22 @@ directory contains the pre-sync tracked diff, downloaded archives, full remote
 hash manifests, copied-file list and `sync-report.json`. No local-only files were deleted. User data,
 databases, runtime credentials, container environment snapshots, runtime caches,
 Python bytecode and AppleDouble metadata were excluded.
+
+## Refresh — 28 October 2026
+
+The running container was exported again and compared with this checkout.
+All 5,964 application files already matched, including the Gemini tool-result
+normalizer and router change. All 21 deployed static-source assets also matched.
+
+The host deployment export contained 56 files. Three missing files from
+`openwebui-patches/gemini-tool-results-20261027/` were copied into
+`deploy/oci/remote-host/`: `Dockerfile`, `oci.py`, and `openai.py`. The changed
+historical branding file `openwebui-branding/20261027/index.html` was also copied.
+Its previous local version is preserved under
+`.deployment/remote-sync-20261028/local-before/`.
+
+All application and host deployment files passed SHA-256 verification after
+the refresh. Archives, manifests, the pre-sync local diff, copied-file list and
+`sync-report.json` are in `.deployment/remote-sync-20261028/`. Local-only files
+were retained, and the same private-data and runtime-cache exclusions apply.
+The remote container was not modified during this refresh.
